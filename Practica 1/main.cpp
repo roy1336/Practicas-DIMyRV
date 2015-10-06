@@ -8,9 +8,376 @@
 #include <array>
 //Glut openGL
 #include <GL/glut.h>
-//clase OBJ
-#include <OBJ.h>
+
 using namespace std;
+
+#define VERTICE 0
+#define TEXTURA 1
+#define NORMAL 2
+
+struct vec2 {
+	float x, y;
+};
+struct vec3 {
+	float x, y, z;
+};
+
+vector<string> splitStr(string, string);
+vector<string> splitStr(string, char);
+
+class OBJ {
+public:
+	vector<vector <array<int,3>>> temp_f;
+	vector<vec3> temp_v;
+	vector<vec3> temp_vt;
+	vector<vec3> temp_vn;
+	vector<string> use_mat;
+	string mat;
+
+	bool lectorArchivo(char *ruta);
+	void dibujaOBJ();
+	void printOBJ();
+};
+
+bool OBJ::lectorArchivo(char *ruta) {
+	FILE *archivo;
+	char linea[64];
+	vector<string> tokens;
+	char keyword[64];
+	archivo = fopen(ruta, "r");
+	// Abrimos el archivo .obj
+	if ((archivo) == NULL) {
+		cout << "No se pudo leer el archivo.\n";
+		return false;
+	}
+	else {
+		while (!feof(archivo)) {
+			fscanf(archivo, "%s", keyword);
+			// Vertices
+			if (strcmp(keyword, "v") == 0) {
+				vec3 vertice_aux;
+				fgets(linea, 64, archivo);
+				tokens.swap(splitStr(linea, ' '));
+				int i = 0, size;
+				size = tokens.size();
+				if (i < size) {
+					while (tokens[i].length() == 0) {
+						i++;
+						if (i >= size) {
+							break;
+						}
+					}
+					if (i < size) {
+						vertice_aux.x = stof(tokens[i]);
+						i++;
+						if (i < size) {
+							while (tokens[i].length() == 0) {
+								i++;
+								if (i >= size) {
+									break;
+								}
+							}
+							if (i < size) {
+								vertice_aux.y = stof(tokens[i]);
+								i++;
+								if (i < size) {
+									while (tokens[i].length() == 0) {
+										i++;
+										if (i >= size) {
+											break;
+										}
+									}
+									vertice_aux.z = stof(tokens[i]);
+								}
+							}
+						}
+					}
+				}
+				tokens.clear();
+				temp_v.push_back(vertice_aux);
+			}
+
+			// Texturas
+			else if (strcmp(keyword, "vt") == 0) {
+				vec3 textura_aux;
+				fgets(linea, 64, archivo);
+				tokens.swap(splitStr(linea, ' '));
+				int i = 0, size;
+				size = tokens.size();
+				if (i < size) {
+					while (tokens[i].length() == 0) {
+						i++;
+						if (i >= size) {
+							break;
+						}
+					}
+					if (i < size) {
+						textura_aux.x = stof(tokens[i]);
+						i++;
+						if (i < size) {
+							while (tokens[i].length() == 0) {
+								i++;
+								if (i >= size) {
+									break;
+								}
+							}
+							if (i < size) {
+								textura_aux.y = stof(tokens[i]);
+								i++;
+								if (i < size) {
+									while (tokens[i].length() == 0) {
+										i++;
+										if (i >= size) {
+											break;
+										}
+									}
+									textura_aux.z = stof(tokens[i]);
+								}
+							}
+						}
+					}
+				}
+				
+				tokens.clear();
+				temp_vt.push_back(textura_aux);
+			}
+
+			// Normales
+			else if (strcmp(keyword, "vn") == 0) {
+				vec3 normal_aux;
+				fgets(linea, 64, archivo);
+				tokens.swap(splitStr(linea, ' '));
+				int i = 0, size;
+				size = tokens.size();
+				if (i < size) {
+					while (tokens[i].length() == 0) {
+						i++;
+						if (i >= size) {
+							break;
+						}
+					}
+					if (i < size) {
+						normal_aux.x = stof(tokens[i]);
+						i++;
+						if (i < size) {
+							while (tokens[i].length() == 0) {
+								i++;
+								if (i >= size) {
+									break;
+								}
+							}
+							if (i < size) {
+								normal_aux.y = stof(tokens[i]);
+								i++;
+								if (i < size) {
+									while (tokens[i].length() == 0) {
+										i++;
+										if (i >= size) {
+											break;
+										}
+									}
+									normal_aux.z = stof(tokens[i]);
+								}
+							}
+						}
+					}
+				}
+				tokens.clear();
+				temp_vn.push_back(normal_aux);
+			}
+
+			//////////////////// Caras//////////////////////////////////////////////////////////
+			else if (strcmp(keyword, "f") == 0) {
+				int size, _size;
+				vector<array<int,3>> tokens_int;
+				vector<string> tokens2;
+				tokens = vector<string>();
+
+				fgets(linea, 64, archivo);
+				tokens.swap(splitStr(linea, ' '));
+
+				size = tokens.size();
+				for (int i = 0;i < size;i++) {
+					array<int, 3> temp_cara;
+					if ((int)tokens[i].find('/') > -1) {
+						tokens2.swap(splitStr(tokens[i], '/'));
+						//_size = tokens2.size();
+						for (int j = 0; j < 3;j++) {
+							if (tokens2[j].length() > 0) {
+								temp_cara[j] = stoi(tokens2[j]);
+							}
+							else {
+								temp_cara[j] = 0;
+							}
+						}
+						tokens_int.push_back(temp_cara);
+					}
+					else if (tokens[i].length() > 0) {
+						tokens2.swap(splitStr(tokens[i], '/'));
+						_size = tokens2.size();
+						for (int j = 0; j < _size;j++) {
+							if (tokens2[j].length() > 0) {
+								temp_cara[j] = stoi(tokens2[j]);
+							}
+							else {
+								temp_cara[j] = 0;
+							}
+						}
+						temp_cara[1] = 0;
+						temp_cara[2] = 0;
+						tokens_int.push_back(temp_cara);
+					}
+				}
+				temp_f.push_back(tokens_int);
+				
+				//cout << temp_f.at(0).at(0) << "\n";
+			}
+			/////////////////////////////////////////////////////////////////////////////////			
+			// Libreria de materiales
+			else if (strcmp(keyword, "mtllib") == 0) {
+				fgets(linea, 64, archivo);
+				tokens = splitStr(linea, ' ');
+				int size = tokens.size();
+				for (int i = 0;i < size;i++) {
+					if (tokens[i].length()!= 0) {
+						mat = tokens[i];
+						i = size;
+					}
+				}
+				if (strstr(linea, ".mtl") == NULL) {
+					cout << "Archivo de materiales no valido.\n";
+					//return false;
+				}
+
+				FILE *archivo_material;
+				archivo_material = fopen(mat.c_str(), "r");
+				// Abrimos el archivo .obj
+				if ((archivo_material) == NULL) {
+					cout << "No se encontro el archivo:" << mat << "\n";
+				}
+				else {
+					fclose(archivo_material);
+				}
+
+			}
+			// Uso de materiales 
+			else if (strcmp(keyword, "usemtl") == 0) {
+				char aux_mat[64];
+				fgets(aux_mat, 64, archivo);
+				use_mat.push_back(aux_mat);
+			}
+			else if (strcmp(keyword, "#") == 0 || strcmp(keyword, "g") == 0 || strcmp(keyword, "s") == 0) {
+				fgets(linea, 64, archivo);
+			}
+			else {
+				//return false;
+			}
+		}
+	}
+	fclose(archivo);
+	return true;
+}
+
+void OBJ::printOBJ() {
+	int size, _size;
+	//vector<vec3> temp_v;
+	cout << "Lista de vertices: " << endl;
+	size = temp_v.size();
+	for (int i = 0; i < size; i++) {
+		cout << " v[" << i + 1 << "]:  " << temp_v[i].x << ", " << temp_v[i].y << ", " << temp_v[i].z << endl;
+	}
+
+	//vector<vec3> temp_vt;
+	cout << "\nLista de coordenadas de textura: " << endl;
+	size = temp_vt.size();
+	for (int i = 0; i < size; i++) {
+		cout << " vt[" << i + 1 << "]:  " << temp_vt[i].x << ", " << temp_vt[i].y << ", " << temp_vt[i].z << endl;
+	}
+
+	//vector<vec3> temp_vn;
+	cout << "\nLista de vectores normales: " << endl;
+	size = temp_vn.size();
+	for (int i = 0; i < size; i++) {
+		cout << " vn[" << i + 1 << "]:  " << temp_vn[i].x << ", " << temp_vn[i].y << ", " << temp_vn[i].z << endl;
+	}
+
+	//vector<char *> use_mat;
+	cout << "\nLista de materiales: " << endl;
+	size = use_mat.size();
+	for (int i = 0; i < size; i++) {
+		cout << " mat[" << i + 1 << "]:  " << use_mat[i] << endl;
+	}
+
+	//char mat[64];
+	cout << "\nArchivo de materiales: " << endl <<
+		" " << mat << endl;
+
+	//vector<vector <string>> temp_f;
+	cout << "\nLista de Caras: " << endl;
+	size = temp_f.size();
+	for (int i = 0; i < size; i++) {
+		_size = temp_f[i].size();
+		cout << " f[" << i + 1 << "]:  ";
+		for (int j = 0; j < _size; j++) {
+			cout << temp_f[i][j][VERTICE] << "/" << temp_f[i][j][TEXTURA] << "/" << temp_f[i][j][NORMAL] << " ";
+		}
+		cout << endl;
+	}
+}
+
+void OBJ::dibujaOBJ() {
+	bool normal, text;
+	int size,_size;
+	glPushMatrix();
+	size = temp_f.size();
+	for (int i = 0; i < size; i++) {
+		normal = false;
+		text = false;
+		glBegin(GL_POLYGON);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		/*switch (i%3) {
+		case 0:
+			glColor3f(1.0f, 0.0f, 0.0f);
+			break;
+		case 1:
+			glColor3f(0.0f, 1.0f, 0.0f);
+			break;
+		case 2:
+			glColor3f(0.0f, 0.0f, 1.0f);
+			break;
+		}*/
+		_size = temp_f[i].size();
+		for (int k = 0; k < _size; k++) {
+			//Dibuja Cara
+			//Vector normal
+			if (temp_f[i][k][NORMAL] > 0) {
+				glNormal3f(temp_vn[temp_f[i][k][NORMAL] - 1].x, temp_vn[temp_f[i][k][NORMAL] - 1].y, temp_vn[temp_f[i][k][NORMAL] - 1].z);
+			}
+			else if (temp_f[i][k][NORMAL] < 0) {
+				int num_n = temp_vn.size();
+				glNormal3f(temp_vn[num_n + temp_f[i][k][NORMAL]].x, temp_vn[num_n + temp_f[i][k][NORMAL]].y, temp_vn[num_n + temp_f[i][k][NORMAL]].z);
+			}
+			//Coordenadas de txtura
+			if (temp_f[i][k][TEXTURA]>0) {
+					glTexCoord2f(temp_vt[temp_f[i][k][TEXTURA] - 1].x, temp_vt[temp_f[i][k][TEXTURA] - 1].y);
+			}
+			else if (temp_f[i][k][TEXTURA] > 0) {
+				int num_t = temp_vt.size();
+				glTexCoord2f(temp_vt[num_t + temp_f[i][k][TEXTURA]].x, temp_vt[num_t + temp_f[i][k][TEXTURA]].y);
+			}
+			//Vertice
+			if (temp_f[i][k][VERTICE]>0) {
+				glVertex3f(temp_v[temp_f[i][k][VERTICE] - 1].x, temp_v[temp_f[i][k][VERTICE] - 1].y, temp_v[temp_f[i][k][VERTICE] - 1].z);
+			}
+			else if (temp_f[i][k][VERTICE]<0) {
+				int num_v = temp_v.size();
+				glVertex3f(temp_v[num_v + temp_f[i][k][VERTICE]].x, temp_v[num_v + temp_f[i][k][VERTICE]].y, temp_v[num_v + temp_f[i][k][VERTICE]].z);
+			}
+		}
+		glEnd();
+	}
+	glPopMatrix();
+}
 
 OBJ objeto;
 bool fileExists;
@@ -83,7 +450,7 @@ void InitGL()     // Inicializamos parametros
 	char *link = "Modelos/link.obj";
 	char *intento = "Modelos/intento.obj";
 
-	fileExists = objeto.lectorArchivo(link);
+	fileExists = objeto.lectorArchivo(estuche);
 	if (fileExists) {
 		cout << "Obj Cargado";
 		//objeto.printOBJ();
