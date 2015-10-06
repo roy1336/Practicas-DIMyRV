@@ -1,0 +1,18 @@
+descarguen glut de la página: 
+las librerías se ponen en las siguientes carpetas:
+glut.h: ‘C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\GL\’
+glut32.lib: ‘C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib\’
+glut32.dll: ‘C:\Windows\System32\’
+Si tienen máquina de Sistema operativo de 64 bits:
+glut32.dll: ‘C:\Windows\SysWOW64\’
+
+En visual studio abren  Project -> Properties. Select Linker -> Input
+y en additional dependencies ponen:
+opengl32.lib
+glu32.lib
+glut32.lib
+
+El proyecto llamado: OpenGL es uno que yo tengo en mi computadora con Visual Studio 2010 y ya tiene incluidas las librerías en el linker.
+Este proyecto agrégenlo de preferencia dentro de: C:\Users\USUARIO\Documents\Visual Studio 2010\Projects
+
+Recuerden copiar la carpeta a su computadora y no manipularla directamente en esta carpeta de dropbox.
