@@ -1,0 +1,45 @@
+#VRML V2.0 utf8
+#Mundo de ejemplo
+
+#carga de modelos
+<modelo link Modelos/link.obj>
+<modelo tux Modelos/tux.obj>
+
+#creando instancias de los modelos
+<objeto link link_1>
+<objeto tux tux_1>
+<objeto tux tux_2>
+
+#aplicando transformaciones basicas
+<posicion link_1 0.0 0.0 0.0>
+<escalamiento link_1 0.5 0.5 0.5>
+<posicion tux_1 1.0 0.0 0.0>
+<posicion tux_2 0.0 1.0 0.0>
+<escalamiento tux_1 1.0 1.0 1.0>
+<escalamiento tux_2 0.5 0.5 0.5>
+<rotacion tux_1 1.0 0.0 0.0>
+
+
+#NOTA las rotaciones son en radianes en el standar, pero si lo dejaron en grados no hay problema
+#conversion de grados a radianes
+#30:	0.5236
+#60:	1.0472
+#90:	1.5708
+#180:	3.1416
+#270:	4.7124
+
+#Es importante que vean que nosotros manejamos el archivo wrl comom el generador de escenario
+#lo que es la carga de objetos, cámara y colisiones lo integramos con las demás prácticas
+#por lo cual no tomamos la estructura básica per se del archivo vrml
+#Como ejemplo
+# VRML V2.0 utf8
+# A sample file with a single stupid node
+#
+#Transform {
+#   translation 0 2 0
+#   children [
+#      Shape {
+#         geometry Sphere {}
+#      }
+#     ]
+# }
